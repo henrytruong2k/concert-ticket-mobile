@@ -7,19 +7,20 @@ import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { eventService } from "@/services/events";
 import { Event } from "@/types/event";
 import { useFocusEffect } from "@react-navigation/native";
-import { useLocalSearchParams, useNavigation, router } from "expo-router";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { Alert } from "react-native";
 
 export default function EventDetailsScreen() {
   const navigation = useNavigation();
   const { id } = useLocalSearchParams();
+  console.log(id);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [eventData, setEventData] = useState<Event | null>(null);
 
   function updateField(field: keyof Event, value: string | Date) {
-    setEventData((prev) => ({
+    setEventData((prev: any) => ({
       ...prev!,
       [field]: value,
     }));
@@ -36,7 +37,7 @@ export default function EventDetailsScreen() {
           {
             text: "Delete",
             onPress: async () => {
-              await eventService.deleteOne(Number(id));
+              await eventService.deleteOne(id);
               router.back();
             },
           },
@@ -68,6 +69,7 @@ export default function EventDetailsScreen() {
   const fetchEvent = async () => {
     try {
       const response = await eventService.getOne(id);
+      console.log(response);
       setEventData(response.data);
     } catch (error) {
       router.back();
@@ -91,12 +93,12 @@ export default function EventDetailsScreen() {
     <VStack m={20} flex={1} gap={30}>
       <VStack gap={5}>
         <Text ml={10} fontSize={14} color="gray">
-          Name
+          Tên sự kiện
         </Text>
         <Input
           value={eventData?.name}
           onChangeText={(value) => updateField("name", value)}
-          placeholder="Name"
+          placeholder="Tên sự kiện"
           placeholderTextColor="darkgray"
           h={48}
           p={14}
@@ -105,12 +107,12 @@ export default function EventDetailsScreen() {
 
       <VStack gap={5}>
         <Text ml={10} fontSize={14} color="gray">
-          Location
+          Địa điểm
         </Text>
         <Input
           value={eventData?.location}
           onChangeText={(value) => updateField("location", value)}
-          placeholder="Name"
+          placeholder="Địa điểm"
           placeholderTextColor="darkgray"
           h={48}
           p={14}
@@ -119,10 +121,10 @@ export default function EventDetailsScreen() {
 
       <VStack gap={5}>
         <Text ml={10} fontSize={14} color="gray">
-          Date
+          Ngày tổ chức
         </Text>
         <DateTimePicker
-          onChange={(date) => updateField("date", date || new Date())}
+          onChange={(date: any) => updateField("date", date || new Date())}
           currentDate={new Date(eventData?.date || new Date())}
         />
       </VStack>

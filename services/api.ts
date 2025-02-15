@@ -6,7 +6,6 @@ const url =
   Platform.OS === "android"
     ? "http://192.168.1.7:5000"
     : "http://127.0.0.1:5000";
-console.log(url);
 
 const Api: AxiosInstance = axios.create({ baseURL: url + "/api" });
 

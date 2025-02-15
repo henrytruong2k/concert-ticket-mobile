@@ -10,8 +10,9 @@ import { eventService } from "@/services/events";
 import { ticketService } from "@/services/tickets";
 import { Event } from "@/types/event";
 import { UserRole } from "@/types/user";
+import { formatVND } from "@/utils/concurrency";
 import { useFocusEffect } from "@react-navigation/native";
-import { useNavigation, router } from "expo-router";
+import { useNavigation, router, Href } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { Alert, FlatList, TouchableOpacity } from "react-native";
 
@@ -22,15 +23,16 @@ export default function EventsScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
 
-  function onGoToEventPage(id: number) {
+  function onGoToEventPage(id: string) {
+    console.log(id);
     if (user?.role === UserRole.Manager) {
-      router.push(`/(events)/event/${id}`);
+      router.push(`/(events)/event/${id}` as Href);
     }
   }
 
-  async function buyTicket(id: number) {
+  async function buyTicket(event: Event) {
     try {
-      await ticketService.createOne(id);
+      await ticketService.createOne(event);
       Alert.alert("Success", "Ticket purchased successfully");
       fetchEvents();
     } catch (error) {
@@ -72,7 +74,7 @@ export default function EventsScreen() {
       </HStack>
 
       <FlatList
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item._id.toString()}
         data={events}
         onRefresh={fetchEvents}
         refreshing={isLoading}
@@ -85,9 +87,9 @@ export default function EventsScreen() {
               backgroundColor: "white",
               borderRadius: 20,
             }}
-            key={event.id}
+            key={event._id}
           >
-            <TouchableOpacity onPress={() => onGoToEventPage(event.id)}>
+            <TouchableOpacity onPress={() => onGoToEventPage(event._id)}>
               <HStack alignItems="center" justifyContent="space-between">
                 <VStack>
                   <Text fontSize={26} bold>
@@ -95,6 +97,9 @@ export default function EventsScreen() {
                   </Text>
                   <Text fontSize={16} bold>
                     {event.location}
+                  </Text>
+                  <Text fontSize={16} bold>
+                    Giá vé: {formatVND(event.amount)}
                   </Text>
                 </VStack>
                 {user?.role === UserRole.Manager && (
@@ -119,7 +124,7 @@ export default function EventsScreen() {
                 <Button
                   variant="outlined"
                   disabled={isLoading}
-                  onPress={() => buyTicket(event.id)}
+                  onPress={() => buyTicket(event)}
                 >
                   Buy Ticket
                 </Button>
@@ -141,7 +146,7 @@ const headerRight = () => {
     <TabBarIcon
       size={32}
       name="add-circle-outline"
-      onPress={() => router.push("/(events)/new")}
+      onPress={() => router.push("/(events)/new" as Href)}
     />
   );
 };
