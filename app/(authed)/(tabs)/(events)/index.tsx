@@ -24,7 +24,6 @@ export default function EventsScreen() {
   const [events, setEvents] = useState<Event[]>([]);
 
   function onGoToEventPage(id: string) {
-    console.log(id);
     if (user?.role === UserRole.Manager) {
       router.push(`/(events)/event/${id}` as Href);
     }

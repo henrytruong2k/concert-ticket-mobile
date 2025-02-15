@@ -5,10 +5,13 @@ import { Text } from "@/components/Text";
 import { VStack } from "@/components/VStack";
 import { eventService } from "@/services/events";
 import { formatVND } from "@/utils/concurrency";
+import { slug } from "@/utils/slug";
+import * as ImagePicker from "expo-image-picker";
 import { router, useNavigation } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -22,23 +25,37 @@ export default function NewEvent() {
   const [location, setLocation] = useState("");
   const [date, setDate] = useState(new Date());
   const [amount, setAmount] = useState("");
+  const [image, setImage] = useState("");
 
   async function onSubmit() {
     try {
       setIsSubmitting(true);
       const amountValue = parseInt(amount.replace(/\D/g, ""), 10);
-      await eventService.createOne(
-        name,
-        location,
-        date.toISOString(),
-        amountValue,
-      );
+      const fileName = getFileName(image, name, date);
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("location", location);
+      formData.append("date", date.toISOString());
+      formData.append("amount", amountValue.toString());
+      formData.append("file", {
+        uri: image,
+        type: `image/${getFileExtension(image)}`,
+        name: fileName,
+      } as any);
+      await eventService.createOne(formData);
       router.back();
     } catch (error) {
       Alert.alert("Error", "Failed to create event");
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  const getFileExtension = (uri: string) => uri.split(".").pop() || "jpg";
+
+  function getFileName(uri: string, name: string, date: Date) {
+    const extension = getFileExtension(uri);
+    return `${slug(name)}_${new Date().getTime()}.${extension}`;
   }
 
   function onChangeDate(date?: Date) {
@@ -52,6 +69,26 @@ export default function NewEvent() {
   useEffect(() => {
     navigation.setOptions({ headerTitle: "New Event" });
   }, []);
+
+  const pickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("Quyền bị từ chối", "Bạn cần cấp quyền truy cập ảnh.");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [16, 9], // Tỉ lệ ảnh
+      quality: 1, // Chất lượng ảnh (1 = cao nhất)
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+      console.log(image);
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -114,13 +151,28 @@ export default function NewEvent() {
             />
           </VStack>
 
+          <VStack gap={5}>
+            <VStack flex={1} alignItems="center" justifyContent="center">
+              <Button m={5} variant="outlined" onPress={pickImage}>
+                Chọn ảnh sự kiện
+              </Button>
+              {image && (
+                <Image
+                  source={{ uri: image }}
+                  style={{ width: "100%", aspectRatio: 1 }}
+                  resizeMode="contain"
+                />
+              )}
+            </VStack>
+          </VStack>
+
           <Button
             mt={"auto"}
             isLoading={isSubmitting}
             disabled={isSubmitting}
             onPress={onSubmit}
           >
-            Save
+            Tạo mới
           </Button>
         </VStack>
       </ScrollView>

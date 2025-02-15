@@ -1,13 +1,10 @@
 import { EventResponse, EventListResponse } from "@/types/event";
 import { Api } from "./api";
 
-async function createOne(
-  name: string,
-  location: string,
-  date: string,
-  amount: number,
-): Promise<EventResponse> {
-  return Api.post("/event", { name, location, date, amount });
+async function createOne(formData: FormData): Promise<EventResponse> {
+  return Api.post("/event", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
 }
 
 async function getOne(id: string | string[]): Promise<EventResponse> {

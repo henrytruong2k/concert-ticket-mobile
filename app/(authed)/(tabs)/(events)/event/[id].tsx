@@ -9,22 +9,41 @@ import { Event } from "@/types/event";
 import { useFocusEffect } from "@react-navigation/native";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { Alert } from "react-native";
+import { Alert, Image } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 
 export default function EventDetailsScreen() {
   const navigation = useNavigation();
   const { id } = useLocalSearchParams();
-  console.log(id);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [eventData, setEventData] = useState<Event | null>(null);
+  const [image, setImage] = useState("");
 
   function updateField(field: keyof Event, value: string | Date) {
-    setEventData((prev: any) => ({
+    setEventData((prev) => ({
       ...prev!,
       [field]: value,
     }));
   }
+
+  const handleAmountChange = (value: string) => {
+    const parsedValue = parseInt(value.replace(/\D/g, ""), 10) || 0;
+    updateField("amount", parsedValue.toString());
+  };
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [16, 9],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
 
   const onDelete = useCallback(async () => {
     if (!eventData) return;
@@ -69,8 +88,8 @@ export default function EventDetailsScreen() {
   const fetchEvent = async () => {
     try {
       const response = await eventService.getOne(id);
-      console.log(response);
       setEventData(response.data);
+      setImage(response.data.image);
     } catch (error) {
       router.back();
     }
@@ -129,13 +148,43 @@ export default function EventDetailsScreen() {
         />
       </VStack>
 
+      <VStack gap={5}>
+        <Text ml={10} fontSize={14} color="gray">
+          Giá vé (VNĐ)
+        </Text>
+        <Input
+          value={eventData?.amount?.toString()}
+          onChangeText={handleAmountChange}
+          keyboardType="numeric"
+          placeholder="Nhập giá vé"
+          placeholderTextColor="darkgray"
+          h={48}
+          p={14}
+        />
+      </VStack>
+
+      <VStack gap={5}>
+        <VStack flex={1} alignItems="center" justifyContent="center">
+          <Button m={5} variant="outlined" onPress={pickImage}>
+            Chọn ảnh sự kiện
+          </Button>
+          {image && (
+            <Image
+              source={{ uri: image }}
+              style={{ width: "100%", aspectRatio: 1 }}
+              resizeMode="contain"
+            />
+          )}
+        </VStack>
+      </VStack>
+
       <Button
         mt={"auto"}
         isLoading={isSubmitting}
         disabled={isSubmitting}
         onPress={onSubmitChanges}
       >
-        Save Changes
+        Lưu thay đổi
       </Button>
     </VStack>
   );
