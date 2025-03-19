@@ -19,6 +19,13 @@ export interface ShortcutProps {
 
   w?: DimensionValue;
   h?: DimensionValue;
+  bgr?: string | "auto";
+  bdr?: number;
+
+  cl?: string | "auto";
+
+  //  backgroundColor="red"
+  //     borderRadius={50}
 }
 
 export const defaultShortcuts = (props: ShortcutProps) => ({
@@ -39,4 +46,11 @@ export const defaultShortcuts = (props: ShortcutProps) => ({
 
   width: props.w,
   height: props.h,
+
+  /*
+  Phước mới định nghĩa*/
+  backgroundColor: props.bgr,
+  borderRadius: props.bdr,
+
+  color: props.cl,
 });

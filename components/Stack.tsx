@@ -5,8 +5,10 @@ import { View, ViewProps } from "react-native";
 export interface StackProps
   extends PropsWithChildren,
     ShortcutProps,
-    ViewProps {
+  ViewProps {
+  backgroundColor?: string;
   flex?: number;
+ borderRadius?: number;
   direction?: "row" | "column";
   gap?: number;
   alignItems?: "flex-start" | "flex-end" | "center" | "stretch" | "baseline";
@@ -25,9 +27,14 @@ export function Stack({
   gap,
   alignItems,
   justifyContent,
+  backgroundColor,
+  borderRadius,
   children,
   style,
+  // backgroundColor,
   ...restProps
+
+
 }: StackProps) {
   return (
     <View
@@ -39,6 +46,7 @@ export function Stack({
           gap,
           alignItems,
           justifyContent,
+          backgroundColor,  
         },
         style,
       ]}
