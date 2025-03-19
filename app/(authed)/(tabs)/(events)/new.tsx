@@ -44,7 +44,7 @@ export default function NewEvent() {
       } as any);
       await eventService.createOne(formData);
       router.back();
-    } catch (error) {
+    } catch (error) {~
       Alert.alert("Error", "Failed to create event");
     } finally {
       setIsSubmitting(false);
