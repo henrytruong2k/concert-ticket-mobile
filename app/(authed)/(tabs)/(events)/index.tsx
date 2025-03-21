@@ -13,15 +13,75 @@ import { UserRole } from "@/types/user";
 import { formatVND } from "@/utils/concurrency";
 import { useFocusEffect } from "@react-navigation/native";
 import { useNavigation, router, Href } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
-import { Alert, FlatList, TouchableOpacity } from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Alert, FlatList, TouchableOpacity, Image, View, Dimensions } from "react-native";
 
 export default function EventsScreen() {
   const { user } = useAuth();
   const navigation = useNavigation();
-
   const [isLoading, setIsLoading] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
+
+  // Thêm dữ liệu Carousel
+  const flatlistRef = useRef<FlatList<any>>(null);
+  const screenWidth = Dimensions.get("window").width;
+  const screenHeight = Dimensions.get("window").height;
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const carouselData = [
+    { id: "01", image: require("../../../../assets/images/imgCarousel/img1.jpeg") },
+    { id: "02", image: require("../../../../assets/images/imgCarousel/img2.jpg") },
+    { id: "03", image: require("../../../../assets/images/imgCarousel/img3.jpg") },
+    { id: "04", image: require("../../../../assets/images/imgCarousel/img4.jpg") },
+    { id: "05", image: require("../../../../assets/images/imgCarousel/img5.jpg") },
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (carouselData.length === 0) return; // Kiểm tra nếu không có dữ liệu
+  
+      const nextIndex = activeIndex >= carouselData.length - 1 ? 0 : activeIndex + 1;
+  
+      flatlistRef.current?.scrollToIndex({ 
+        index: nextIndex, 
+        animated: true 
+      });
+  
+      setActiveIndex(nextIndex);
+    }, 2200);
+  
+    return () => clearInterval(interval);
+  }, [activeIndex, carouselData.length]);
+  
+
+  const getItemLayout = (_, index) => ({
+    length: screenWidth,
+    offset: screenWidth * index,
+    index,
+  });
+
+  const renderItem = ({ item }) => (
+    <View style={{ alignItems: "center" }}>
+      <Image source={item.image} style={{ height: screenHeight * 0.32, width: screenWidth }} resizeMode="contain" />
+    </View>
+  );
+
+  const renderDotIndicators = () => {
+    return carouselData.map((_, index) => (
+      <View
+        key={index}
+        style={{
+          backgroundColor: activeIndex === index ? "black" : "white",
+          height: 8,
+          width: 8,
+          borderRadius: 5,
+          marginHorizontal: 6,
+          borderWidth: 0.4, 
+          borderColor: "white", 
+        }}
+      />
+    ));
+  };
 
   function onGoToEventPage(id: string) {
     if (user?.role === UserRole.Manager) {
@@ -65,7 +125,34 @@ export default function EventsScreen() {
   }, [navigation, user]);
 
   return (
-    <VStack flex={1} p={20} pb={0} gap={20}>
+    <VStack flex={1}  pb={0} gap={20}>
+      <VStack mb={5} style={{ position: "relative" }}>
+        <FlatList
+          data={carouselData}
+          ref={flatlistRef}
+          getItemLayout={getItemLayout}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onScroll={(event) => {
+          const index = event.nativeEvent.contentOffset.x / screenWidth;
+          setActiveIndex(index);
+          }}
+        />
+        <View style={{
+          position: "absolute",
+          bottom: 5,
+          left: 0,
+          right: 0,
+          flexDirection: "row",
+          justifyContent: "center"
+        }}>
+            {renderDotIndicators()}
+        </View>
+
+      </VStack>
       <HStack alignItems="center" justifyContent="space-between">
         <Text fontSize={18} bold>
           {events.length} Events
