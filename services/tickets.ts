@@ -5,7 +5,7 @@ import { Event } from "@/types/event";
 
 async function getOne(
   id: number,
-): Promise<ApiResponse<{ ticket: Ticket; qrcode: string }>> {
+): Promise<ApiResponse<{ ticket: Ticket; qrCode: string }>> {
   return Api.get(`/ticket/${id}`);
 }
 
@@ -17,7 +17,10 @@ async function buyTicket(email: string, event: Event): Promise<any> {
   return Api.post("/ticket/buy", { email, event });
 }
 
-async function scan(ticketId: string, ownerId: string): Promise<ApiResponse<Ticket>> {
+async function scan(
+  ticketId: string,
+  ownerId: string,
+): Promise<ApiResponse<Ticket>> {
   return Api.post("/ticket/scan", { ticketId, ownerId });
 }
 

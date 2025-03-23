@@ -26,6 +26,9 @@ export default function EventsScreen() {
     if (user?.role === UserRole.Manager) {
       router.push(`/(events)/event/${id}` as Href);
     }
+    if (user?.role === UserRole.Attendee) {
+      router.push(`/(events)/event/attendee/${id}` as Href);
+    }
   }
 
   async function buyTicket(event: Event) {
