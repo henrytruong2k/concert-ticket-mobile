@@ -6,11 +6,13 @@ import { VStack } from "@/components/VStack";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { eventService } from "@/services/events";
 import { Event } from "@/types/event";
+import { formatVND } from "@/utils/concurrency";
+import { getFileExtension, getFileName } from "@/utils/image";
 import { useFocusEffect } from "@react-navigation/native";
+import * as ImagePicker from "expo-image-picker";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { Alert, Image } from "react-native";
-import * as ImagePicker from "expo-image-picker";
+import { Alert, Image, ScrollView } from "react-native";
 
 export default function EventDetailsScreen() {
   const navigation = useNavigation();
@@ -29,7 +31,7 @@ export default function EventDetailsScreen() {
 
   const handleAmountChange = (value: string) => {
     const parsedValue = parseInt(value.replace(/\D/g, ""), 10) || 0;
-    updateField("amount", parsedValue.toString());
+    updateField("amount", formatVND(parsedValue.toString()));
   };
 
   const pickImage = async () => {
@@ -71,14 +73,36 @@ export default function EventDetailsScreen() {
     if (!eventData) return;
     try {
       setIsSubmitting(true);
-      await eventService.updateOne(
-        Number(id),
-        eventData.name,
-        eventData.location,
-        eventData.date,
+      const amountValue = parseInt(
+        eventData?.amount.toString().replace(/\D/g, ""),
+        10,
       );
+
+      const formData = new FormData();
+      formData.append("name", eventData?.name);
+      formData.append("location", eventData?.location);
+      formData.append("date", new Date(eventData.date).toISOString());
+      formData.append("amount", amountValue.toString());
+      console.log(image);
+      if (image) {
+        const fileName = getFileName(
+          image,
+          eventData.name,
+          new Date(eventData.date),
+        );
+        formData.append("files", {
+          uri: image,
+          type: `image/${getFileExtension(image)}`,
+          name: fileName,
+        } as any);
+      }
+
+      console.log(formData);
+
+      await eventService.updateOne(eventData._id, formData);
       router.back();
-    } catch (error) {
+    } catch (error: any) {
+      console.log({ error });
       Alert.alert("Error", "Failed to update event");
     } finally {
       setIsSubmitting(false);
@@ -89,7 +113,6 @@ export default function EventDetailsScreen() {
     try {
       const response = await eventService.getOne(id);
       setEventData(response.data);
-      setImage(response.data.image);
     } catch (error) {
       router.back();
     }
@@ -109,84 +132,88 @@ export default function EventDetailsScreen() {
   }, [navigation, onDelete]);
 
   return (
-    <VStack m={20} flex={1} gap={30}>
-      <VStack gap={5}>
-        <Text ml={10} fontSize={14} color="gray">
-          Tên sự kiện
-        </Text>
-        <Input
-          value={eventData?.name}
-          onChangeText={(value) => updateField("name", value)}
-          placeholder="Tên sự kiện"
-          placeholderTextColor="darkgray"
-          h={48}
-          p={14}
-        />
-      </VStack>
-
-      <VStack gap={5}>
-        <Text ml={10} fontSize={14} color="gray">
-          Địa điểm
-        </Text>
-        <Input
-          value={eventData?.location}
-          onChangeText={(value) => updateField("location", value)}
-          placeholder="Địa điểm"
-          placeholderTextColor="darkgray"
-          h={48}
-          p={14}
-        />
-      </VStack>
-
-      <VStack gap={5}>
-        <Text ml={10} fontSize={14} color="gray">
-          Ngày tổ chức
-        </Text>
-        <DateTimePicker
-          onChange={(date: any) => updateField("date", date || new Date())}
-          currentDate={new Date(eventData?.date || new Date())}
-        />
-      </VStack>
-
-      <VStack gap={5}>
-        <Text ml={10} fontSize={14} color="gray">
-          Giá vé (VNĐ)
-        </Text>
-        <Input
-          value={eventData?.amount?.toString()}
-          onChangeText={handleAmountChange}
-          keyboardType="numeric"
-          placeholder="Nhập giá vé"
-          placeholderTextColor="darkgray"
-          h={48}
-          p={14}
-        />
-      </VStack>
-
-      <VStack gap={5}>
-        <VStack flex={1} alignItems="center" justifyContent="center">
-          <Button m={5} variant="outlined" onPress={pickImage}>
-            Chọn ảnh sự kiện
-          </Button>
-          {image && (
-            <Image
-              source={{ uri: image }}
-              style={{ width: "100%", aspectRatio: 1 }}
-              resizeMode="contain"
-            />
-          )}
+    <ScrollView>
+      <VStack m={20} flex={1} gap={30}>
+        <VStack gap={5}>
+          <Text ml={10} fontSize={14} color="gray">
+            Tên sự kiện
+          </Text>
+          <Input
+            value={eventData?.name}
+            onChangeText={(value) => updateField("name", value)}
+            placeholder="Tên sự kiện"
+            placeholderTextColor="darkgray"
+            h={48}
+            p={14}
+          />
         </VStack>
-      </VStack>
+        <VStack gap={5}>
+          <Text ml={10} fontSize={14} color="gray">
+            Địa điểm
+          </Text>
+          <Input
+            value={eventData?.location}
+            onChangeText={(value) => updateField("location", value)}
+            placeholder="Địa điểm"
+            placeholderTextColor="darkgray"
+            h={48}
+            p={14}
+          />
+        </VStack>
+        <VStack gap={5}>
+          <Text ml={10} fontSize={14} color="gray">
+            Ngày tổ chức
+          </Text>
+          <DateTimePicker
+            onChange={(date: any) => updateField("date", date || new Date())}
+            currentDate={new Date(eventData?.date || new Date())}
+          />
+        </VStack>
+        <VStack gap={5}>
+          <Text ml={10} fontSize={14} color="gray">
+            Giá vé (VNĐ)
+          </Text>
+          <Input
+            value={formatVND(eventData?.amount?.toString() || 0)}
+            onChangeText={handleAmountChange}
+            keyboardType="numeric"
+            placeholder="Nhập giá vé"
+            placeholderTextColor="darkgray"
+            h={48}
+            p={14}
+          />
+        </VStack>
 
-      <Button
-        mt={"auto"}
-        isLoading={isSubmitting}
-        disabled={isSubmitting}
-        onPress={onSubmitChanges}
-      >
-        Lưu thay đổi
-      </Button>
-    </VStack>
+        {eventData?.image && image === "" && (
+          <Image
+            source={{ uri: eventData?.image }}
+            style={{ width: 400, height: 300 }}
+          />
+        )}
+
+        <VStack gap={5}>
+          <VStack flex={1} alignItems="center" justifyContent="center">
+            <Button m={5} variant="outlined" onPress={pickImage}>
+              Chọn ảnh sự kiện
+            </Button>
+            {image && (
+              <Image
+                source={{ uri: image }}
+                style={{ width: 400, height: 300 }}
+              />
+            )}
+          </VStack>
+        </VStack>
+        <Button
+          mt={"auto"}
+          isLoading={isSubmitting}
+          disabled={isSubmitting}
+          onPress={onSubmitChanges}
+        >
+          Lưu thay đổi
+        </Button>
+      </VStack>
+    </ScrollView>
   );
 }
 

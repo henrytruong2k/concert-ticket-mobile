@@ -21,7 +21,9 @@ Api.interceptors.response.use(
   async (res: AxiosResponse) => {
     return res.data;
   },
-  async (err: AxiosError) => Promise.reject(err),
+  async (err: AxiosError) => {
+    return Promise.reject(err);
+  },
 );
 
 export { Api };

@@ -5,7 +5,7 @@ import { Text } from "@/components/Text";
 import { VStack } from "@/components/VStack";
 import { eventService } from "@/services/events";
 import { formatVND } from "@/utils/concurrency";
-import { slug } from "@/utils/slug";
+import { getFileExtension, getFileName } from "@/utils/image";
 import * as ImagePicker from "expo-image-picker";
 import { router, useNavigation } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -44,18 +44,11 @@ export default function NewEvent() {
       } as any);
       await eventService.createOne(formData);
       router.back();
-    } catch (error) {~
-      Alert.alert("Error", "Failed to create event");
+    } catch (error) {
+      ~Alert.alert("Error", "Failed to create event");
     } finally {
       setIsSubmitting(false);
     }
-  }
-
-  const getFileExtension = (uri: string) => uri.split(".").pop() || "jpg";
-
-  function getFileName(uri: string, name: string, date: Date) {
-    const extension = getFileExtension(uri);
-    return `${slug(name)}_${new Date().getTime()}.${extension}`;
   }
 
   function onChangeDate(date?: Date) {

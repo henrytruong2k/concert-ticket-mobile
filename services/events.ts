@@ -16,12 +16,12 @@ async function getAll(): Promise<EventListResponse> {
 }
 
 async function updateOne(
-  id: number,
-  name: string,
-  location: string,
-  date: string,
+  id: string,
+  formData: FormData,
 ): Promise<EventResponse> {
-  return Api.put(`/event/${id}`, { name, location, date });
+  return Api.put(`/event/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
 }
 
 async function deleteOne(id: string | string[]): Promise<EventResponse> {
