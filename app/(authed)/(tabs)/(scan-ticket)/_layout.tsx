@@ -60,9 +60,6 @@ export default function ScanTicketScreen() {
         ]);
         return;
       }
-      Alert.alert("Lỗi", "Không thể kết nối đến máy chủ.", [
-        { text: "Ok", onPress: () => setScanningEnabled(true) },
-      ]);
       setScanningEnabled(true);
     }
   }

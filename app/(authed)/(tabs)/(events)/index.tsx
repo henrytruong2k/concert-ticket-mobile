@@ -70,7 +70,7 @@ export default function EventsScreen() {
   }, [navigation, user]);
 
   return (
-    <VStack flex={1} pb={0} gap={20}>
+    <VStack flex={1} p={10} gap={20}>
       <HStack alignItems="center" justifyContent="space-between">
         <Text fontSize={18} bold>
           {events.length} Events

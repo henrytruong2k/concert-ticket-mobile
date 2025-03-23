@@ -1,7 +1,7 @@
 import { userService } from "@/services/user";
 import { User } from "@/types/user";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router } from "expo-router";
+import { Href, router } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 
 interface AuthContextProps {
@@ -39,7 +39,7 @@ export function AuthenticationProvider({
         if (token && user) {
           setIsLoggedIn(true);
           setUser(JSON.parse(user));
-          router.replace("(authed)");
+          router.replace("(authed)" as Href);
         } else {
           setIsLoggedIn(false);
         }
@@ -64,7 +64,7 @@ export function AuthenticationProvider({
         await AsyncStorage.setItem("token", response.data.token);
         await AsyncStorage.setItem("user", JSON.stringify(response.data.user));
         setUser(response.data.user);
-        router.replace("(authed)");
+        router.replace("(authed)" as Href);
       }
     } catch (error) {
       setIsLoggedIn(false);

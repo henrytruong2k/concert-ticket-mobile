@@ -11,7 +11,16 @@ export default function TabLayout() {
 
   const tabs = [
     {
-      showFor: [UserRole.Attendee, UserRole.Manager],
+      showFor: [],
+      name: "home",
+      displayName: "Home",
+      icon: "home",
+      options: {
+        headerShown: true,
+      },
+    },
+    {
+      showFor: [],
       name: "(events)",
       displayName: "Events",
       icon: "calendar",
@@ -38,7 +47,7 @@ export default function TabLayout() {
       },
     },
     {
-      showFor: [UserRole.Attendee, UserRole.Manager],
+      showFor: [],
       name: "settings",
       displayName: "Settings",
       icon: "cog",
@@ -57,7 +66,10 @@ export default function TabLayout() {
           options={{
             ...tab.options,
             headerTitle: tab.displayName,
-            href: tab.showFor.includes(user?.role!) ? (tab.name as Href) : null,
+            href:
+              tab.showFor.includes(user?.role!) || tab.showFor.length === 0
+                ? (tab.name as Href)
+                : null,
             tabBarLabel: ({ focused }) => (
               <Text style={{ color: focused ? "black" : "gray", fontSize: 12 }}>
                 {tab.displayName}

@@ -133,11 +133,11 @@ export default function SettingsScreen() {
         </VStack>
         <VStack gap={0} mb={10}>
           <Text ml={20} fontSize={14} cl="gray">
-            Passwork
+            Password
           </Text>
           <Input
             // value={user?.email}
-            placeholder="Nhập passwork"
+            placeholder="Nhập password"
             secureTextEntry={togglePassword}
             placeholderTextColor="darkgray"
             h={48}

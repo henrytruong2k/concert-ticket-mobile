@@ -4,7 +4,7 @@ import { ApiResponse } from "@/types/api";
 import { Event } from "@/types/event";
 
 async function getOne(
-  id: number,
+  id: string,
 ): Promise<ApiResponse<{ ticket: Ticket; qrCode: string }>> {
   return Api.get(`/ticket/${id}`);
 }

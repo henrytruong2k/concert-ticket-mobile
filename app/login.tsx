@@ -91,7 +91,7 @@ export default function Login() {
             </VStack>
 
             <Button isLoading={isLoadingAuth} onPress={onAuthenticate}>
-              {authMode}
+              {authMode.toUpperCase()}
             </Button>
           </VStack>
 
