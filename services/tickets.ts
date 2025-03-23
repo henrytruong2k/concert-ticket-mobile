@@ -3,10 +3,6 @@ import { Api } from "./api";
 import { ApiResponse } from "@/types/api";
 import { Event } from "@/types/event";
 
-async function createOne(event: Event): Promise<TicketResponse> {
-  return Api.post("/ticket", { event });
-}
-
 async function getOne(
   id: number,
 ): Promise<ApiResponse<{ ticket: Ticket; qrcode: string }>> {
@@ -17,18 +13,19 @@ async function getAll(): Promise<TicketListResponse> {
   return Api.get("/ticket");
 }
 
-async function validateOne(
-  ticketId: number,
-  ownerId: number,
-): Promise<TicketResponse> {
-  return Api.post("/ticket/validate", { ticketId, ownerId });
+async function buyTicket(email: string, event: Event): Promise<any> {
+  return Api.post("/ticket/buy", { email, event });
+}
+
+async function scan(ticketId: string, ownerId: string): Promise<ApiResponse<Ticket>> {
+  return Api.post("/ticket/scan", { ticketId, ownerId });
 }
 
 const ticketService = {
-  createOne,
   getOne,
   getAll,
-  validateOne,
+  buyTicket,
+  scan,
 };
 
 export { ticketService };

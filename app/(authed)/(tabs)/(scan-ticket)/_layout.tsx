@@ -1,6 +1,7 @@
 import { Button } from "@/components/Button";
 import { VStack } from "@/components/VStack";
 import { ticketService } from "@/services/tickets";
+import axios from "axios";
 import {
   BarcodeScanningResult,
   CameraView,
@@ -40,13 +41,26 @@ export default function ScanTicketScreen() {
 
       const { ticketId, ownerId } = JSON.parse(data);
 
-      await ticketService.scan(ticketId, ownerId);
+      const response = await ticketService.scan(ticketId, ownerId);
 
-      Alert.alert("Success", "Ticket validated successfully.", [
+      Alert.alert("Success", response.message, [
         { text: "Ok", onPress: () => setScanningEnabled(true) },
       ]);
     } catch (error) {
-      Alert.alert("Error", "Failed to validate ticket. Please try again.", [
+      if (axios.isAxiosError(error)) {
+        const errorData = error.response?.data as {
+          message?: string;
+          status?: string;
+        };
+        const errorMessage =
+          errorData?.message || "Có lỗi xảy ra, vui lòng thử lại.";
+
+        Alert.alert("Lỗi", errorMessage, [
+          { text: "Ok", onPress: () => setScanningEnabled(true) },
+        ]);
+        return;
+      }
+      Alert.alert("Lỗi", "Không thể kết nối đến máy chủ.", [
         { text: "Ok", onPress: () => setScanningEnabled(true) },
       ]);
       setScanningEnabled(true);

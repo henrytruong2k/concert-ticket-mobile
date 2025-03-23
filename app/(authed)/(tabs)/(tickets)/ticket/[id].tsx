@@ -10,7 +10,6 @@ import { Image } from "react-native";
 export default function TicketDetailScreen() {
   const navigation = useNavigation();
   const { id } = useLocalSearchParams();
-  console.log({ id });
 
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [qrcode, setQrcode] = useState<string | null>(null);
@@ -19,7 +18,7 @@ export default function TicketDetailScreen() {
     try {
       const { data } = await ticketService.getOne(id as string);
       setTicket(data.ticket);
-      setQrcode(data.qrCode);
+      setQrcode(data.qrcode);
     } catch (error) {
       router.back();
     }

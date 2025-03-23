@@ -30,8 +30,11 @@ export default function EventsScreen() {
 
   async function buyTicket(event: Event) {
     try {
-      await ticketService.createOne(event);
-      Alert.alert("Success", "Ticket purchased successfully");
+      await ticketService.buyTicket("kzyo5962@gmail.com", event);
+      Alert.alert(
+        "Success",
+        "Vé đã được đặt thành công. Vui lòng kiểm tra email để hoàn tất thanh toán",
+      );
       fetchEvents();
     } catch (error) {
       Alert.alert("Error", "Failed to buy ticket");
