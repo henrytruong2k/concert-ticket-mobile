@@ -4,66 +4,121 @@ import { eventService } from "@/services/events";
 import { Event } from "@/types/event";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
-import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
 
 export default function EventAttendeeDetailScreen() {
-    // ... (các phần khác của component)
+  const { id } = useLocalSearchParams();
+  const [eventData, setEventData] = useState<Event | null>(null);
 
-    return (
-        <ScrollView style={styles.container}>
-            <VStack m={20} gap={20} justifyContent="center" alignItems="center">
-                <View style={styles.card}>
-                    <LinearGradient colors={['#6a11cb', '#2575fc']} style={styles.gradient}>
-                        <Ionicons name="film-outline" size={30} color="white" />
-                        <Text style={styles.title}>Tên sự kiện</Text>
-                        <Text style={styles.content}>{eventData?.name}</Text>
-                    </LinearGradient>
-                </View>
+  const fetchEvent = async () => {
+    try {
+      const response = await eventService.getOne(id);
+      setEventData(response.data);
+    } catch (error) {
+      router.back();
+    }
+  };
 
-                {/* Các card tương tự cho Địa điểm, Ngày tổ chức và Giá vé */}
+  useFocusEffect(
+    useCallback(() => {
+      fetchEvent();
+    }, []),
+  );
 
-                <View style={styles.imageCard}>
-                    <Image source={{ uri: eventData?.image }} style={styles.image} resizeMode="cover" />
-                </View>
-            </VStack>
-        </ScrollView>
-    );
+  const formatDateWithTime = (dateString: any) => {
+    if (!dateString) return "Chưa có ngày";
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+    return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+  };
+
+  return (
+    <ScrollView style={styles.container}>
+      <VStack m={10} gap={10} justifyContent="center" alignItems="center">
+        {/* Tên sự kiện */}
+        <View style={styles.card}>
+          <Text style={styles.title}>Tên sự kiện</Text>
+          <Text style={styles.content}>{eventData?.name}</Text>
+        </View>
+
+        {/* Địa điểm */}
+        <View style={styles.card}>
+          <Text style={styles.title}>Địa điểm</Text>
+          <Text style={styles.content}>{eventData?.location}</Text>
+        </View>
+
+        {/* Ngày tổ chức */}
+        <View style={styles.card}>
+          <Text style={styles.title}>Ngày tổ chức</Text>
+          <Text style={styles.content}>
+            {formatDateWithTime(eventData?.date)}
+          </Text>
+        </View>
+
+        {/* Giá vé */}
+        <View style={styles.card}>
+          <Text style={styles.title}>Giá vé (VNĐ)</Text>
+          <Text style={styles.content}>
+            {eventData?.amount?.toLocaleString("vi-VN")} VNĐ
+          </Text>
+        </View>
+
+        {/* Hình ảnh */}
+        <View style={styles.imageCard}>
+          <Image
+            source={{ uri: eventData?.image }}
+            style={styles.image}
+            resizeMode="cover"
+          />
+        </View>
+      </VStack>
+    </ScrollView>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#f0f0f0' },
-    card: {
-        width: '90%',
-        borderRadius: 12,
-        overflow: 'hidden',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 6,
-        elevation: 8,
-    },
-    gradient: {
-        padding: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    title: { fontSize: 22, fontWeight: 'bold', color: 'white', textAlign: 'center', marginBottom: 8 },
-    content: { fontSize: 20, color: 'white', textAlign: 'center' },
-    imageCard: {
-        width: '90%',
-        height: 250,
-        overflow: 'hidden',
-        borderRadius: 12,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 6,
-        elevation: 8,
-    },
-    image: {
-        width: '100%',
-        height: '100%',
-        opacity: 0.8,
-    },
+  container: { flex: 1, backgroundColor: "#f5f5f5" },
+  card: {
+    backgroundColor: "white",
+    borderRadius: 8,
+    padding: 12, // Giảm padding
+    width: "90%",
+    alignItems: "center",
+    marginBottom: 5, // Giảm marginBottom
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#3f51b5",
+    textAlign: "center",
+    marginBottom: 5,
+  }, // Giảm fontSize
+  content: { fontSize: 16, color: "#424242", textAlign: "center" }, // Giảm fontSize
+  imageCard: {
+    width: "90%",
+    height: 150, // Giảm height
+    overflow: "hidden",
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  image: {
+    width: "100%",
+    height: "100%",
+    opacity: 0.8,
+  },
 });

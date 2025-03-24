@@ -56,6 +56,7 @@ export const AndroidDateTimePicker = ({
   currentDate,
 }: DateTimePickerProps) => {
   const formattedDate = formatDateTime(currentDate);
+  const today = new Date();
 
   const showDatepicker = () => {
     DateTimePickerAndroid.open({
@@ -66,6 +67,7 @@ export const AndroidDateTimePicker = ({
         }
       },
       mode: "date",
+      minimumDate: today,
     });
   };
 

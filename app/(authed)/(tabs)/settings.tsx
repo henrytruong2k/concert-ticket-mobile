@@ -1,17 +1,11 @@
 import { Button } from "@/components/Button";
+import { Input } from "@/components/Input";
 import { Text } from "@/components/Text";
 import { VStack } from "@/components/VStack";
 import { useAuth } from "@/context/AuthContext";
-import React from "react";
-import { Alert, Platform } from "react-native";
-import { Input } from "@/components/Input";
-import { Image, ScrollView } from "react-native";
-import { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
-import { formatDateTime } from "../../../components/DateTimePicker";
-import RNDateTimePicker, {
-  DateTimePickerAndroid,
-} from "@react-native-community/datetimepicker";
+import React, { useState } from "react";
+import { Alert, Image, ScrollView } from "react-native";
 
 import { format } from "date-fns";
 
@@ -71,8 +65,8 @@ export default function SettingsScreen() {
           }}
         >
           <VStack
-            h={150}
-            w={150}
+            h={100}
+            w={100}
             bgr="darkgray"
             bdr={75}
             mb={30}
@@ -136,7 +130,6 @@ export default function SettingsScreen() {
             Password
           </Text>
           <Input
-            // value={user?.email}
             placeholder="Nhập password"
             secureTextEntry={togglePassword}
             placeholderTextColor="darkgray"
@@ -145,41 +138,23 @@ export default function SettingsScreen() {
             mt={5}
           />
         </VStack>
+
         <VStack gap={0} mt={5} mb={10}>
           <Text ml={20} fontSize={14} cl="gray">
-            Ngày tháng năm sinh
+            Địa chỉ
           </Text>
 
           <Input
-            value={formattedDate} // Hiển thị ngày đã chọn
-            placeholder="Ngày tháng năm sinh"
+            placeholder="Nhập địa chỉ"
             placeholderTextColor="darkgray"
             h={48}
             p={14}
             mt={5}
-            onFocus={showDatepicker} // Mở picker khi nhấn vào Input
           />
-
-          {/* Hiển thị DateTimePicker khi showPicker là true */}
-          {/* {Platform.OS === "android" && (
-          <
-            value={dateOfBirth}
-            mode="date"
-            display="default"
-            onChange={(e, date) => handleDateChange(date || new Date())}
-          />
-        )} */}
-          {showPicker && Platform.OS === "ios" && (
-            <RNDateTimePicker
-              value={dateOfBirth}
-              mode="date"
-              display="default"
-              onChange={(_, date) => handleDateChange(date || new Date())}
-            />
-          )}
         </VStack>
+
         <VStack direction="column" p={20}>
-          <Button mb={10}>
+          <Button mb={10} variant="outlined">
             <Text>Xác nhận</Text>
           </Button>
           <Button onPress={logout}>
