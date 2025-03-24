@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import TabBar from "./TabNavigation";
-import Carousel from "../Carousel/Carousel";
 import GetCarouselEvent from "../Carousel/GetCarouselEvent";
 
 export default function TabScreen() {
-  const [activeTab, setActiveTab] = useState(0); // Mặc định chọn tab đầu tiên
+  const [activeTab, setActiveTab] = useState(0); 
 
   return (
     <View style={styles.container}>
@@ -13,9 +12,13 @@ export default function TabScreen() {
 
       <View style={styles.content}>
         {activeTab === 0 ? (
-          <Text style={styles.text}>{/* <GetCarouselEvent /> */}</Text>
+          <Text style={styles.text}>
+            <GetCarouselEvent />
+          </Text>
         ) : (
-          <Text style={styles.text}></Text>
+          <Text style={styles.text}>
+            <GetCarouselEvent />
+          </Text>
         )}
       </View>
     </View>
